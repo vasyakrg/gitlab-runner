@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: true
+  vars_files: creds.yml
+  roles:
+    - role: vasyakrg.runner
+      vars:
+        - gitlab_runner_registration_token: "{{ runner_token }}"
+        - gitlab_runner_coordinator_url: "{{ gitlab_url }}"
+        - gitlab_runner_runners:
+            - executor: docker
+              docker_image: 'alpine'
+              tags:
+                - linux
+                - xenial
+                - ubuntu
+                - docker
+              docker_volumes:
+                - "/var/run/docker.sock:/var/run/docker.sock"
+                - "/cache"
+              extra_configs:
+                runners.docker:
+                  memory: 256m
+                  allowed_images: ["ruby:*", "python:*", "php:*"]
+                runners.docker.sysctls:
+                  net.ipv4.ip_forward: "1"
